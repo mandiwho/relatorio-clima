@@ -1,0 +1,165 @@
+{
+  "name": "relatorio-clima",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -528,
+        -64
+      ],
+      "id": "c3cc7796-1852-494e-a18e-0bdf6491b9d4",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "cityName": "Betim,BR",
+        "language": "pt-BR"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -64
+      ],
+      "id": "a9a2bebf-8b7e-4bb9-be23-45926b3668ab",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "2BOYTIbEOTCNtVQ2",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é a Paula, assistente da empresa Minas Eventos, responsável por fazer relatórios do clima. \n\nVocê deve informar se, com base nos dados de cllima atual de Betim-MG, é viável fazer eventos no dia de hoje a céu aberto.\n\nA temperatura é em graus Celsius e as velocidades de vento são em m/s.\n\nTemperatura: {{ $json.main.temp }}\nSensação térmica: {{ $json.main.feels_like }}\nUmidade: {{ $json.main.humidity }}\nVelocidade do vento: {{ $json.wind.speed }}\nInformações atuais: {{ $json.weather[0].main }},{{ $json.weather[0].description }}\n\nGere o relatório de forma resumida. No máximo, 1 parágrafo com 40 palavras. seja breve e formal. retorne apenas o relatório e nada mais. Sem nenhum comentário.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -80,
+        -64
+      ],
+      "id": "359f4e5d-8eeb-4fb4-aca7-04196404bf00",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        160
+      ],
+      "id": "a61281cb-72cd-4310-b769-f1c05964425e",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "WutLBy0qMXBer4h5",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09JN8Q4NHX",
+          "mode": "list",
+          "cachedResultName": "minas-eventos"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        272,
+        -64
+      ],
+      "id": "8958a7b0-7d04-4f7e-841d-9a965b838899",
+      "name": "Send a message",
+      "webhookId": "e8363e2a-7565-41ae-9094-2efa440b7b99",
+      "credentials": {
+        "slackApi": {
+          "id": "uXYAsXXRPVVvlj6a",
+          "name": "Slack account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bc419d02-7d46-4d15-9f3f-36d7473cde01",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ac51b3b77cdd7e623d6c8f6474904e635e296e7a6f10ddecfd89055f1370727f"
+  },
+  "id": "qKlvon7sszI07QbB",
+  "tags": []
+}
