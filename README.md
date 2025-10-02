@@ -12,7 +12,7 @@ Uma automação que envia relatórios diários do clima para uma empresa de even
 
 **API de Clima:** Como OpenWeather, para obter dados meteorológicos em tempo real.
 
-**Integrações de Mensagens:** Slack, Email, e outras plataformas para envio automático dos relatórios.
+**Integrações de Mensagens:** Slack, e-mail, e outras plataformas para envio automático dos relatórios.
 
 **JSON:** Formato de exportação dos relatórios.
 
